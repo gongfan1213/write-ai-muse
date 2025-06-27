@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Send, Copy, Edit3, Save, Trash2, Plus, Brain, TrendingUp, FileText, Users, MessageSquare, Loader } from 'lucide-react';
+import { Send, Copy, Edit3, Save, Trash2, Plus, Brain, TrendingUp, FileText, Users, MessageSquare, Loader, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
+import AgentDetailDialog from '@/components/AgentDetailDialog';
+import ContentEditCanvas from '@/components/ContentEditCanvas';
 
 const Workspace = () => {
   const [messages, setMessages] = useState([]);
@@ -16,6 +17,9 @@ const Workspace = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContents, setGeneratedContents] = useState([]);
   const [selectedContent, setSelectedContent] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [showAgentDialog, setShowAgentDialog] = useState(false);
+  const [showEditCanvas, setShowEditCanvas] = useState(false);
   const [agentStats, setAgentStats] = useState({
     contentAgent: { tokens: 1234, time: 2.3, status: 'active' },
     hotspotAgent: { tokens: 890, time: 1.8, status: 'active' },
@@ -26,12 +30,234 @@ const Workspace = () => {
   });
 
   const agents = [
-    { id: 'content', name: '内容生成智能体', icon: '✍️', color: 'bg-blue-500' },
-    { id: 'hotspot', name: '热点分析智能体', icon: '🔥', color: 'bg-red-500' },
-    { id: 'optimize', name: '文案优化智能体', icon: '✨', color: 'bg-purple-500' },
-    { id: 'research', name: '学术研究智能体', icon: '📚', color: 'bg-green-500' },
-    { id: 'profile', name: '用户画像智能体', icon: '👤', color: 'bg-yellow-500' },
-    { id: 'quality', name: '质量评估智能体', icon: '🎯', color: 'bg-indigo-500' }
+    {
+      id: 'content',
+      name: '内容生成智能体',
+      icon: '✍️',
+      color: 'bg-blue-500',
+      description: '专门负责根据用户画像和热点分析生成高质量的文案内容，能够适应不同平台的写作风格和要求。',
+      capabilities: [
+        '多平台文案生成',
+        '情感化表达优化',
+        '品牌语调适配',
+        '创意标题制作',
+        '产品描述撰写',
+        '故事化内容创作'
+      ],
+      workflow: [
+        '分析用户画像和目标受众',
+        '结合热点话题和趋势',
+        '生成初版文案内容',
+        '根据平台特点调整风格',
+        '优化语言表达和结构',
+        '输出最终文案作品'
+      ],
+      metrics: {
+        totalTasks: 245,
+        tokensUsed: 45672,
+        avgResponseTime: 2.3,
+        successRate: 97.8,
+        efficiency: 89
+      },
+      recentTasks: [
+        {
+          id: '1',
+          task: '生成小红书美妆种草文案',
+          status: 'completed',
+          duration: 2.1,
+          tokensUsed: 234,
+          timestamp: '2分钟前'
+        },
+        {
+          id: '2',
+          task: '创作品牌故事文案',
+          status: 'completed',
+          duration: 3.5,
+          tokensUsed: 445,
+          timestamp: '5分钟前'
+        }
+      ]
+    },
+    {
+      id: 'hotspot',
+      name: '热点分析智能体',
+      icon: '🔥',
+      color: 'bg-red-500',
+      description: '实时监控各大社交平台的热点话题，分析趋势走向，为内容创作提供时效性强的素材和灵感。',
+      capabilities: [
+        '实时热点监控',
+        '趋势分析预测',
+        '话题热度评估',
+        '受众情感分析',
+        '竞品内容跟踪',
+        '病毒传播预测'
+      ],
+      workflow: [
+        '扫描各大平台热搜榜',
+        '收集相关话题数据',
+        '分析热点传播趋势',
+        '评估话题影响力',
+        '生成热点报告',
+        '推荐创作角度'
+      ],
+      metrics: {
+        totalTasks: 189,
+        tokensUsed: 32456,
+        avgResponseTime: 1.8,
+        successRate: 95.6,
+        efficiency: 92
+      },
+      recentTasks: [
+        {
+          id: '3',
+          task: '分析#秋季穿搭#话题热度',
+          status: 'running',
+          duration: 0,
+          tokensUsed: 0,
+          timestamp: '正在进行'
+        }
+      ]
+    },
+    {
+      id: 'optimize',
+      name: '文案优化智能体',
+      icon: '✨',
+      color: 'bg-purple-500',
+      description: '对生成的文案进行优化，提升吸引力和转化率',
+      capabilities: [
+        '关键词优化',
+        '情感色彩增强',
+        '结构调整',
+        '润色',
+        'Call to Action优化'
+      ],
+      workflow: [
+        '分析文案',
+        '提取关键词',
+        '优化情感色彩',
+        '调整结构',
+        '润色'
+      ],
+      metrics: {
+        totalTasks: 167,
+        tokensUsed: 28934,
+        avgResponseTime: 1.5,
+        successRate: 98.2,
+        efficiency: 94
+      },
+      recentTasks: [
+        {
+          id: '4',
+          task: '优化标题吸引力',
+          status: 'completed',
+          duration: 1.2,
+          tokensUsed: 123,
+          timestamp: '10分钟前'
+        }
+      ]
+    },
+    {
+      id: 'research',
+      name: '学术研究智能体',
+      icon: '📚',
+      color: 'bg-green-500',
+      description: '深度研究学术文献，生成专业报告和分析',
+      capabilities: [
+        '文献检索',
+        '数据分析',
+        '报告生成'
+      ],
+      workflow: [
+        '检索文献',
+        '分析数据',
+        '生成报告'
+      ],
+      metrics: {
+        totalTasks: 89,
+        tokensUsed: 67823,
+        avgResponseTime: 4.2,
+        successRate: 96.7,
+        efficiency: 78
+      },
+      recentTasks: [
+        {
+          id: '5',
+          task: '撰写市场分析报告',
+          status: 'in_progress',
+          duration: 2.5,
+          tokensUsed: 567,
+          timestamp: '5分钟前'
+        }
+      ]
+    },
+    {
+      id: 'profile',
+      name: '用户画像智能体',
+      icon: '👤',
+      color: 'bg-yellow-500',
+      description: '分析用户行为和偏好，个性化内容生成策略',
+      capabilities: [
+        '用户行为分析',
+        '偏好分析',
+        '内容生成策略'
+      ],
+      workflow: [
+        '分析用户行为',
+        '分析偏好',
+        '生成内容策略'
+      ],
+      metrics: {
+        totalTasks: 134,
+        tokensUsed: 23567,
+        avgResponseTime: 1.2,
+        successRate: 99.1,
+        efficiency: 96
+      },
+      recentTasks: [
+        {
+          id: '6',
+          task: '更新用户兴趣标签',
+          status: 'completed',
+          duration: 0.8,
+          tokensUsed: 89,
+          timestamp: '3分钟前'
+        }
+      ]
+    },
+    {
+      id: 'quality',
+      name: '质量评估智能体',
+      icon: '🎯',
+      color: 'bg-indigo-500',
+      description: '评估内容质量，提供改进建议和评分',
+      capabilities: [
+        '内容质量评估',
+        '改进建议',
+        '内容评分'
+      ],
+      workflow: [
+        '评估内容质量',
+        '提供改进建议',
+        '内容评分'
+      ],
+      metrics: {
+        totalTasks: 198,
+        tokensUsed: 34521,
+        avgResponseTime: 1.9,
+        successRate: 97.4,
+        efficiency: 91
+      },
+      recentTasks: [
+        {
+          id: '7',
+          task: '评估文案质量得分',
+          status: 'completed',
+          duration: 1.5,
+          tokensUsed: 156,
+          timestamp: '2分钟前'
+        }
+      ]
+    }
   ];
 
   const sampleContents = [
@@ -103,6 +329,31 @@ const Workspace = () => {
     });
   };
 
+  const handleAgentClick = (agentId) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (agent) {
+      setSelectedAgent(agent);
+      setShowAgentDialog(true);
+    }
+  };
+
+  const handleContentEdit = (content) => {
+    setSelectedContent(content);
+    setShowEditCanvas(true);
+  };
+
+  const handleContentSave = (updatedContent) => {
+    // 更新内容列表
+    const updatedSample = sampleContents.map(item =>
+      item.id === updatedContent.id ? updatedContent : item
+    );
+    const updatedGenerated = generatedContents.map(item =>
+      item.id === updatedContent.id ? updatedContent : item
+    );
+    setGeneratedContents(updatedGenerated);
+    setShowEditCanvas(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
@@ -158,7 +409,10 @@ const Workspace = () => {
                         }}>
                           <Copy className="w-3 h-3" />
                         </Button>
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" onClick={(e) => {
+                          e.stopPropagation();
+                          handleContentEdit(content);
+                        }}>
                           <Edit3 className="w-3 h-3" />
                         </Button>
                       </div>
@@ -177,10 +431,15 @@ const Workspace = () => {
                 {agents.map((agent) => {
                   const stats = agentStats[agent.id.replace('content', 'contentAgent').replace('hotspot', 'hotspotAgent').replace('optimize', 'optimizeAgent').replace('research', 'researchAgent').replace('profile', 'profileAgent').replace('quality', 'qualityAgent')];
                   return (
-                    <div key={agent.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+                    <div 
+                      key={agent.id} 
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
+                      onClick={() => handleAgentClick(agent.id)}
+                    >
                       <div className="flex items-center space-x-3">
                         <div className={`w-3 h-3 rounded-full ${agent.color} ${stats?.status === 'active' ? 'animate-pulse' : ''}`}></div>
                         <span className="text-sm font-medium">{agent.name}</span>
+                        <Info className="w-4 h-4 text-gray-400" />
                       </div>
                       <div className="text-xs text-gray-600">
                         {stats?.tokens || 0} tokens • {stats?.time || 0}s
@@ -275,6 +534,21 @@ const Workspace = () => {
           </div>
         </div>
       </div>
+
+      {/* Agent Detail Dialog */}
+      <AgentDetailDialog
+        agent={selectedAgent}
+        open={showAgentDialog}
+        onClose={() => setShowAgentDialog(false)}
+      />
+
+      {/* Content Edit Canvas */}
+      <ContentEditCanvas
+        content={selectedContent}
+        open={showEditCanvas}
+        onClose={() => setShowEditCanvas(false)}
+        onSave={handleContentSave}
+      />
     </div>
   );
 };
